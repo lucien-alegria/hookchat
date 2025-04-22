@@ -36,7 +36,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-2xl mx-auto bg-white shadow-lg">
+    <div className="flex flex-col h-screen w-full bg-white shadow-lg">
       <div className="flex justify-between items-center p-4 border-b">
         <h2 className="text-xl font-semibold">AI Chat</h2>
         <Button 

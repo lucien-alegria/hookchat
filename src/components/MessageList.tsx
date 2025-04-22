@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Message } from '../hooks/useWebhookChat';
+import { format } from 'date-fns';
 
 interface MessageListProps {
   messages: Message[];
@@ -29,6 +30,11 @@ export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
                 Attachments: {message.attachments.map(a => a.name).join(', ')}
               </div>
             )}
+            <div className={`text-xs mt-1 ${
+              message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
+            }`}>
+              {format(message.timestamp, 'HH:mm')}
+            </div>
           </div>
         </div>
       ))}
