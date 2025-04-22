@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
@@ -15,6 +14,21 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
   const [isLoading, setIsLoading] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
 
+  // Helper function to convert File to base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        // Remove the data URL prefix (e.g., "data:application/pdf;base64,")
+        const base64Data = base64.split(',')[1];
+        resolve(base64Data);
+      };
+      reader.onerror = error => reject(error);
+    });
+  };
+
   const sendMessage = useCallback(async (content: string, attachments?: File[]) => {
     if (!content && (!attachments || attachments.length === 0)) return;
 
@@ -30,26 +44,51 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
     setIsLoading(true);
 
     try {
-      const formData = new FormData();
+      // Create the payload directly as an object, not as a string
       const payload = {
         message: content,
-        ...(threadId && { threadId })
+        threadId: threadId || crypto.randomUUID()
       };
       
-      formData.append('payload', JSON.stringify(payload));
+      // Create an object to hold the structured request body
+      const requestBody: any = {};
       
-      if (attachments) {
-        attachments.forEach((file, index) => {
-          formData.append(`attachment_${index}`, file);
-        });
+      // Add the payload as a direct property
+      requestBody.payload = payload;
+      
+      // Process attachments and add them to the request body
+      if (attachments && attachments.length > 0) {
+        for (let i = 0; i < attachments.length; i++) {
+          const file = attachments[i];
+          const base64Data = await fileToBase64(file);
+          
+          // Add each attachment with proper structure
+          requestBody[`attachment_${i}`] = {
+            name: file.name,
+            mime: file.type,
+            data: base64Data,
+            // Include a files array for compatibility
+            files: [
+              {
+                name: file.name,
+                mime: file.type,
+                data: base64Data
+              }
+            ]
+          };
+        }
       }
+      
+      // Wrap the whole thing in an array as shown in your example
+      const finalPayload = [requestBody];
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           ...authHeader,
         },
-        body: formData
+        body: JSON.stringify(finalPayload)
       });
 
       if (!response.ok) {
@@ -57,7 +96,11 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
       }
 
       const responseData = await response.json();
-      setThreadId(responseData.threadId);
+      
+      // Update threadId if one is returned
+      if (responseData.threadId) {
+        setThreadId(responseData.threadId);
+      }
 
       const aiMessage: Message = {
         id: `msg-${Date.now()}`,
