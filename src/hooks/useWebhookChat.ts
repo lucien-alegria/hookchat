@@ -13,6 +13,7 @@ export interface Message {
 export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, string>) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
 
   const sendMessage = useCallback(async (content: string, attachments?: File[]) => {
     if (!content && (!attachments || attachments.length === 0)) return;
@@ -30,7 +31,11 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
 
     try {
       const formData = new FormData();
-      formData.append('message', content);
+      const payload = {
+        message: content,
+        ...(threadId && { threadId })
+      };
+      formData.append('payload', JSON.stringify(payload));
       
       attachments?.forEach((file, index) => {
         formData.append(`attachment_${index}`, file);
@@ -48,11 +53,12 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
         throw new Error('Webhook request failed');
       }
 
-      const aiResponse = await response.json();
+      const responseData = await response.json();
+      setThreadId(responseData.threadId);
 
       const aiMessage: Message = {
         id: `msg-${Date.now()}`,
-        content: aiResponse.message || 'No response from AI',
+        content: responseData.response || 'No response from AI',
         sender: 'ai',
         timestamp: Date.now()
       };
@@ -65,10 +71,11 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
     } finally {
       setIsLoading(false);
     }
-  }, [webhookUrl, authHeader]);
+  }, [webhookUrl, authHeader, threadId]);
 
   const clearConversation = () => {
     setMessages([]);
+    setThreadId(null);
     toast.success('Conversation cleared');
   };
 
