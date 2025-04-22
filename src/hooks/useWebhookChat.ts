@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
@@ -29,18 +30,26 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
     setIsLoading(true);
 
     try {
+      const formData = new FormData();
       const payload = {
         message: content,
         ...(threadId && { threadId })
       };
+      
+      formData.append('payload', JSON.stringify(payload));
+      
+      if (attachments) {
+        attachments.forEach((file, index) => {
+          formData.append(`attachment_${index}`, file);
+        });
+      }
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           ...authHeader,
         },
-        body: JSON.stringify(payload)
+        body: formData
       });
 
       if (!response.ok) {

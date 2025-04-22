@@ -5,16 +5,25 @@ import { Input } from '@/components/ui/input';
 import { useWebhookChat } from '../hooks/useWebhookChat';
 import { MessageList } from './MessageList';
 import { AttachmentUploader } from './AttachmentUploader';
-import { Send, Trash2 } from 'lucide-react';
+import { Send, RefreshCcw } from 'lucide-react';
+import { SettingsDialog } from './SettingsDialog';
 
 interface ChatInterfaceProps {
   webhookUrl: string;
-  authHeader?: Record<string, string>;
+  setWebhookUrl: (url: string) => void;
+  authHeader: Record<string, string>;
+  setAuthHeader: (header: Record<string, string>) => void;
+  isDark: boolean;
+  setIsDark: (isDark: boolean) => void;
 }
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
-  webhookUrl, 
-  authHeader 
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({
+  webhookUrl,
+  setWebhookUrl,
+  authHeader,
+  setAuthHeader,
+  isDark,
+  setIsDark,
 }) => {
   const [messageText, setMessageText] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
@@ -36,20 +45,30 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-screen w-full bg-white shadow-lg">
+    <div className={`flex flex-col h-screen w-full shadow-lg ${isDark ? 'bg-gray-800 text-white' : 'bg-white'}`}>
       <div className="flex justify-between items-center p-4 border-b">
         <h2 className="text-xl font-semibold">AI Chat</h2>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={clearConversation}
-          title="Clear Conversation"
-        >
-          <Trash2 className="text-gray-600" />
-        </Button>
+        <div className="flex items-center space-x-2">
+          <SettingsDialog 
+            webhookUrl={webhookUrl}
+            setWebhookUrl={setWebhookUrl}
+            authHeader={authHeader}
+            setAuthHeader={setAuthHeader}
+            isDark={isDark}
+            setIsDark={setIsDark}
+          />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={clearConversation}
+            title="Clear Conversation"
+          >
+            <RefreshCcw className="text-gray-600" />
+          </Button>
+        </div>
       </div>
       
-      <MessageList messages={messages} />
+      <MessageList messages={messages} isDark={isDark} />
       
       <div className="p-4 border-t flex items-center space-x-2">
         <AttachmentUploader onAttachmentChange={setAttachments} />
@@ -58,7 +77,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           onChange={(e) => setMessageText(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Type your message..."
-          className="flex-grow"
+          className={`flex-grow ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`}
           disabled={isLoading}
         />
         <Button 
