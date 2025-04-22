@@ -36,7 +36,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
   return <div className="flex flex-col h-screen w-full bg-white shadow-lg">
       <div className="flex justify-between items-center p-4 border-b">
-        <h2 className="text-xl font-semibold">AI Chat</h2>
+        <h2 className="text-xl font-semibold">HookChat</h2>
         <Button variant="ghost" size="icon" onClick={clearConversation} title="Clear Conversation">
           <Trash2 className="text-gray-600" />
         </Button>
