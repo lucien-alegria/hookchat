@@ -36,7 +36,7 @@ const Index = () => {
         <div className="space-y-4">
           <div>
             <label className="block mb-2 text-sm font-medium">Webhook URL</label>
-            <Input value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} placeholder="Enter your Make.com webhook URL" className={isDark ? 'bg-gray-600 border-gray-600' : ''} />
+            <Input value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} placeholder="Enter your webhook URL" className={isDark ? 'bg-gray-600 border-gray-600' : ''} />
           </div>
 
           <div>
