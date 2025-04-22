@@ -31,7 +31,7 @@ const Index = () => {
   }
   return <div className={`min-h-screen flex items-center justify-center p-4 ${isDark ? 'bg-gray-800 text-white' : 'bg-gray-100'}`}>
       <div className={`w-full max-w-md ${isDark ? 'bg-gray-700' : 'bg-white'} p-8 rounded-lg shadow-md`}>
-        <h1 className="text-2xl font-bold mb-6 text-center">Chat with a Webhook</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">HookChat</h1>
         
         <div className="space-y-4">
           <div>
