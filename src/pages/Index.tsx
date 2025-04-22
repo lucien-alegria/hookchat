@@ -24,7 +24,7 @@ const Index = () => {
   }
   return <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Quick Webhook Chat</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Chat with a Webhook</h1>
         
         <div className="space-y-4">
           <div>
