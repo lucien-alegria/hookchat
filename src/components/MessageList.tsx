@@ -5,10 +5,9 @@ import { format } from 'date-fns';
 
 interface MessageListProps {
   messages: Message[];
-  isDark: boolean;
 }
 
-export const MessageList: React.FC<MessageListProps> = ({ messages, isDark }) => {
+export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   return (
     <div className="flex-grow overflow-y-auto p-4 space-y-4">
       {messages.map((message) => (
@@ -21,12 +20,8 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, isDark }) =>
           <div 
             className={`max-w-[70%] p-3 rounded-lg ${
               message.sender === 'user' 
-                ? isDark 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-blue-500 text-white'
-                : isDark
-                  ? 'bg-gray-700 text-white'
-                  : 'bg-gray-200 text-black'
+                ? 'bg-blue-500 text-white' 
+                : 'bg-gray-200 text-black'
             }`}
           >
             <p>{message.content}</p>
@@ -36,9 +31,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, isDark }) =>
               </div>
             )}
             <div className={`text-xs mt-1 ${
-              message.sender === 'user' 
-                ? isDark ? 'text-blue-200' : 'text-blue-100'
-                : isDark ? 'text-gray-400' : 'text-gray-500'
+              message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
             }`}>
               {format(message.timestamp, 'HH:mm')}
             </div>

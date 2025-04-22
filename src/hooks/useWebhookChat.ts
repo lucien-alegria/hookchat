@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
@@ -30,30 +29,18 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
     setIsLoading(true);
 
     try {
-      // Prepare payload that Make.com can easily parse
       const payload = {
         message: content,
-        attachmentNames: attachments ? attachments.map(file => file.name) : [],
-        threadId: threadId || undefined,
-        timestamp: Date.now()
+        ...(threadId && { threadId })
       };
-
-      const formData = new FormData();
-      formData.append('payload', JSON.stringify(payload));
-      
-      // Append actual files
-      if (attachments) {
-        attachments.forEach((file, index) => {
-          formData.append(`attachment_${index}`, file);
-        });
-      }
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           ...authHeader,
         },
-        body: formData
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
@@ -61,9 +48,7 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
       }
 
       const responseData = await response.json();
-      
-      // Ensure threadId is always tracked
-      setThreadId(responseData.threadId || threadId);
+      setThreadId(responseData.threadId);
 
       const aiMessage: Message = {
         id: `msg-${Date.now()}`,
