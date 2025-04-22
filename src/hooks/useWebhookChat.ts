@@ -30,14 +30,18 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
     setIsLoading(true);
 
     try {
-      const formData = new FormData();
+      // Prepare payload that Make.com can easily parse
       const payload = {
         message: content,
-        ...(threadId && { threadId })
+        attachmentNames: attachments ? attachments.map(file => file.name) : [],
+        threadId: threadId || undefined,
+        timestamp: Date.now()
       };
-      
+
+      const formData = new FormData();
       formData.append('payload', JSON.stringify(payload));
       
+      // Append actual files
       if (attachments) {
         attachments.forEach((file, index) => {
           formData.append(`attachment_${index}`, file);
@@ -57,7 +61,9 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
       }
 
       const responseData = await response.json();
-      setThreadId(responseData.threadId);
+      
+      // Ensure threadId is always tracked
+      setThreadId(responseData.threadId || threadId);
 
       const aiMessage: Message = {
         id: `msg-${Date.now()}`,
