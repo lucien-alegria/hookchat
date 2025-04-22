@@ -62,13 +62,26 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
         }
       }
       
-      // Create the payload with the exact structure specified
+      // Extract authentication header information
+      let authorizationKey = '';
+      let authorizationValue = '';
+      
+      if (authHeader) {
+        const authEntry = Object.entries(authHeader)[0]; // Get the first auth header
+        if (authEntry) {
+          [authorizationKey, authorizationValue] = authEntry;
+        }
+      }
+      
+      // Create the payload with the exact structure specified, including auth header info
       const bundle = {
         message: content,
         threadId: currentThreadId,
         timestamp: timestamp,
         attachmentCount: attachmentsArray.length,
-        attachments: attachmentsArray
+        attachments: attachmentsArray,
+        authorizationKey,
+        authorizationValue
       };
       
       // Webhook structure that works with Make.com
