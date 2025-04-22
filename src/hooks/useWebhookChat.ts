@@ -32,42 +32,46 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
   const sendMessage = useCallback(async (content: string, attachments?: File[]) => {
     if (!content && (!attachments || attachments.length === 0)) return;
 
+    const timestamp = Date.now();
     const newMessage: Message = {
-      id: `msg-${Date.now()}`,
+      id: `msg-${timestamp}`,
       content,
       sender: 'user',
       attachments,
-      timestamp: Date.now()
+      timestamp
     };
 
     setMessages(prev => [...prev, newMessage]);
     setIsLoading(true);
 
     try {
-      // Important: For Make.com to parse correctly, place values at the root level
-      // of the bundle, not deeply nested
       const currentThreadId = threadId || crypto.randomUUID();
       
-      // Create a flattened structure that Make.com can parse properly
-      const bundle = {
-        message: content,
-        threadId: currentThreadId
-      };
-      
       // Process attachments
+      const attachmentsArray = [];
       if (attachments && attachments.length > 0) {
-        for (let i = 0; i < attachments.length; i++) {
-          const file = attachments[i];
+        for (const file of attachments) {
           const base64Data = await fileToBase64(file);
           
-          // Add each attachment directly to the bundle with a unique key
-          bundle[`attachment_${i}_name`] = file.name;
-          bundle[`attachment_${i}_mime`] = file.type;
-          bundle[`attachment_${i}_data`] = base64Data;
+          // Add attachment object to array
+          attachmentsArray.push({
+            attachmentName: file.name,
+            attachmentMime: file.type,
+            attachmentData: base64Data
+          });
         }
       }
       
-      // Webhook structure that works well with Make.com
+      // Create the payload with the exact structure specified
+      const bundle = {
+        message: content,
+        threadId: currentThreadId,
+        timestamp: timestamp,
+        attachmentCount: attachmentsArray.length,
+        attachments: attachmentsArray
+      };
+      
+      // Webhook structure that works with Make.com
       const finalPayload = [bundle];
 
       const response = await fetch(webhookUrl, {
