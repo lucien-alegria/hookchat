@@ -44,43 +44,31 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
     setIsLoading(true);
 
     try {
-      // Create the payload directly as an object, not as a string
-      const payload = {
+      // Important: For Make.com to parse correctly, place values at the root level
+      // of the bundle, not deeply nested
+      const currentThreadId = threadId || crypto.randomUUID();
+      
+      // Create a flattened structure that Make.com can parse properly
+      const bundle = {
         message: content,
-        threadId: threadId || crypto.randomUUID()
+        threadId: currentThreadId
       };
       
-      // Create an object to hold the structured request body
-      const requestBody: any = {};
-      
-      // Add the payload as a direct property
-      requestBody.payload = payload;
-      
-      // Process attachments and add them to the request body
+      // Process attachments
       if (attachments && attachments.length > 0) {
         for (let i = 0; i < attachments.length; i++) {
           const file = attachments[i];
           const base64Data = await fileToBase64(file);
           
-          // Add each attachment with proper structure
-          requestBody[`attachment_${i}`] = {
-            name: file.name,
-            mime: file.type,
-            data: base64Data,
-            // Include a files array for compatibility
-            files: [
-              {
-                name: file.name,
-                mime: file.type,
-                data: base64Data
-              }
-            ]
-          };
+          // Add each attachment directly to the bundle with a unique key
+          bundle[`attachment_${i}_name`] = file.name;
+          bundle[`attachment_${i}_mime`] = file.type;
+          bundle[`attachment_${i}_data`] = base64Data;
         }
       }
       
-      // Wrap the whole thing in an array as shown in your example
-      const finalPayload = [requestBody];
+      // Webhook structure that works well with Make.com
+      const finalPayload = [bundle];
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
@@ -100,6 +88,9 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
       // Update threadId if one is returned
       if (responseData.threadId) {
         setThreadId(responseData.threadId);
+      } else {
+        // If no threadId in response, store the one we created
+        setThreadId(currentThreadId);
       }
 
       const aiMessage: Message = {
