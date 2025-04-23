@@ -6,6 +6,7 @@ Hookchat is a UI for chatting on the fly with a webhook.
 
 Payload sent to the webhook:
 
+```json
 {
         "message": "Hey!",
         "threadId": "9759cee0-e11f-4779-b695-bff18bdb15af",
@@ -21,13 +22,16 @@ Payload sent to the webhook:
         "authorizationKey": "Authorization",
         "authorizationValue": "Bearer 12345"
     }
+```
 
 Expected response:
 
+```json
 {
     "response": "Hello! How can I assist you today?",
     "threadId": "9759cee0-e11f-4779-b695-bff18bdb15af"
     }
+```
 
 ## How can I get my own hookchat?
 
