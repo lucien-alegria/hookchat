@@ -1,14 +1,11 @@
-
 import React, { useRef, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Settings, Copy } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
-
 interface SettingsDialogProps {
   webhookUrl: string;
   setWebhookUrl: (url: string) => void;
@@ -16,12 +13,9 @@ interface SettingsDialogProps {
   setAuthHeader: (header: Record<string, string>) => void;
   isDark: boolean;
   setIsDark: (isDark: boolean) => void;
-  allowAttachments: boolean;
-  setAllowAttachments: (allow: boolean) => void;
   open?: boolean;
   setOpen?: (open: boolean) => void;
 }
-
 export const SettingsDialog: React.FC<SettingsDialogProps> = ({
   webhookUrl,
   setWebhookUrl,
@@ -29,45 +23,27 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
   setAuthHeader,
   isDark,
   setIsDark,
-  allowAttachments,
-  setAllowAttachments,
   open,
   setOpen
 }) => {
+  // If open prop is present, we operate as controlled popup. Otherwise, local controlled.
   const controlledOpen = typeof open === 'boolean';
   const [localOpen, setLocalOpen] = React.useState(false);
   const actualOpen = controlledOpen ? open : localOpen;
-  
   const handleOpenChange = (o: boolean) => {
-    if (setOpen) setOpen(o);
-    else setLocalOpen(o);
+    if (setOpen) setOpen(o);else setLocalOpen(o);
   };
 
+  // Manage editing header name/value
   const headerName = Object.keys(authHeader)[0] || '';
   const headerValue = Object.values(authHeader)[0] || '';
 
+  // Save: just closes the dialog (all fields update live)
   const onSave = (e: React.FormEvent) => {
     e.preventDefault();
     handleOpenChange(false);
   };
-
-  const getShareableLink = () => {
-    const url = new URL(window.location.href);
-    url.searchParams.set('webhook', webhookUrl);
-    return url.toString();
-  };
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(getShareableLink());
-      toast.success('Link copied to clipboard');
-    } catch (err) {
-      toast.error('Failed to copy link');
-    }
-  };
-
-  return (
-    <Dialog open={actualOpen} onOpenChange={handleOpenChange}>
+  return <Dialog open={actualOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon" className="text-gray-600">
           <Settings className="h-5 w-5" />
@@ -86,33 +62,9 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
               <Label htmlFor="webhook" className="flex items-center">
                 Webhook URL <span className="text-red-500 ml-0.5">*</span>
               </Label>
-              <Input 
-                id="webhook" 
-                value={webhookUrl} 
-                onChange={e => setWebhookUrl(e.target.value)} 
-                placeholder="Enter webhook URL" 
-                className="mt-1" 
-                required 
-                autoComplete="off"
-              />
-              {webhookUrl && (
-                <div className="mt-2 flex items-center gap-2">
-                  <Input 
-                    value={getShareableLink()}
-                    readOnly
-                    className="text-sm text-muted-foreground"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={copyToClipboard}
-                    className="flex-shrink-0"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
+              <Input id="webhook" value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} placeholder="Enter webhook URL" className="mt-1" required autoComplete="off"
+            // border/focus handled via Input component
+            />
             </div>
             <div className="flex gap-2">
               <div className="flex-1">
@@ -132,27 +84,15 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
               Save
             </Button>
             <Separator className="my-3" />
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="allowAttachments">Allow Attachments</Label>
-                <Switch 
-                  id="allowAttachments" 
-                  checked={allowAttachments} 
-                  onCheckedChange={setAllowAttachments}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="darkMode">Dark Mode</Label>
-                <Switch 
-                  id="darkMode" 
-                  checked={isDark} 
-                  onCheckedChange={setIsDark}
-                />
-              </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="darkMode">Dark Mode</Label>
+              <Switch id="darkMode" checked={isDark} onCheckedChange={setIsDark} />
             </div>
           </div>
         </form>
+        <DialogClose asChild>
+          
+        </DialogClose>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
