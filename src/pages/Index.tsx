@@ -2,13 +2,19 @@
 import React, { useState, useEffect } from 'react';
 import { ChatInterface } from '@/components/ChatInterface';
 
-// Always start on chat, with settings dialog open.
 const Index = () => {
-  const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookUrl, setWebhookUrl] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('webhook') || '';
+  });
   const [authHeader, setAuthHeader] = useState<Record<string, string>>({});
   const [isDark, setIsDark] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
     return savedMode ? JSON.parse(savedMode) : false;
+  });
+  const [allowAttachments, setAllowAttachments] = useState(() => {
+    const saved = localStorage.getItem('allowAttachments');
+    return saved ? JSON.parse(saved) : true;
   });
 
   useEffect(() => {
@@ -20,7 +26,19 @@ const Index = () => {
     }
   }, [isDark]);
 
-  // settings dialog is opened from ChatInterface via prop
+  useEffect(() => {
+    localStorage.setItem('allowAttachments', JSON.stringify(allowAttachments));
+  }, [allowAttachments]);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (webhookUrl) {
+      url.searchParams.set('webhook', webhookUrl);
+    } else {
+      url.searchParams.delete('webhook');
+    }
+    window.history.replaceState({}, '', url);
+  }, [webhookUrl]);
 
   return (
     <ChatInterface
@@ -30,7 +48,10 @@ const Index = () => {
       setAuthHeader={setAuthHeader}
       isDark={isDark}
       setIsDark={setIsDark}
+      allowAttachments={allowAttachments}
+      setAllowAttachments={setAllowAttachments}
     />
   );
 };
+
 export default Index;
