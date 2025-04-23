@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useWebhookChat } from '../hooks/useWebhookChat';
 import { MessageList } from './MessageList';
 import { AttachmentUploader } from './AttachmentUploader';
-import { Send, RefreshCcw, Github, Webhook, Settings as SettingsIcon } from 'lucide-react';
+import { Send, RefreshCcw, Github, Webhook } from 'lucide-react';
 import { SettingsDialog } from './SettingsDialog';
 import { Separator } from '@/components/ui/separator';
 
@@ -52,7 +52,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  // Make textarea auto-grow up to 3 rows
+  // Auto-grow textarea up to 3 rows
   useLayoutEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = '40px';
@@ -94,8 +94,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       <MessageList messages={messages} isDark={isDark} />
 
       {/* Bottom section (input area) */}
-      <div className="p-4 border-t flex flex-col gap-2">
-        {/* Attachment list (not uploader, just list) */}
+      <div className={`p-4 border-t flex flex-col gap-2${attachments.length > 0 ? ' pb-3' : ''}`}>
+        {/* Attachment list above input */}
         {attachments.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-2">
             {attachments.map((file, idx) => (
@@ -118,7 +118,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         )}
 
         <div className="flex items-center space-x-2 w-full">
-          {/* Attachment icon button inside input row */}
+          {/* Attachment icon button on the left */}
           <AttachmentUploader
             onAttachmentChange={setAttachments}
             clearTrigger={clearCount}
@@ -131,12 +131,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             onChange={e => setMessageText(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
-            className={`flex-grow resize-none rounded-md border border-input bg-background px-3 py-2 text-base focus:outline-none 
-            ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''} 
-            scrollbar-none h-10 min-h-[40px] max-h-[120px] transition-none`}
+            className={`flex-grow resize-none rounded-md border border-input bg-background px-3 py-2 text-base focus:outline-none
+              ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}
+              h-10 min-h-[40px] max-h-[120px] transition-none
+              focus:border-black
+              `}
             disabled={isLoading}
             rows={1}
-            style={{ minHeight: 40, maxHeight: 120, height: '40px', lineHeight: '20px' }}
+            style={{ minHeight: 40, maxHeight: 120, lineHeight: '20px' }}
           />
           <Button
             onClick={handleSendMessage}
