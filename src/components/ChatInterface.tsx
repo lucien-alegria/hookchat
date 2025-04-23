@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useLayoutEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +7,6 @@ import { AttachmentUploader } from './AttachmentUploader';
 import { Send, RefreshCcw, Github, Webhook } from 'lucide-react';
 import { SettingsDialog } from './SettingsDialog';
 import { Separator } from '@/components/ui/separator';
-
 interface ChatInterfaceProps {
   webhookUrl: string;
   setWebhookUrl: (url: string) => void;
@@ -17,7 +15,6 @@ interface ChatInterfaceProps {
   isDark: boolean;
   setIsDark: (isDark: boolean) => void;
 }
-
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   webhookUrl,
   setWebhookUrl,
@@ -30,12 +27,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [attachments, setAttachments] = useState<File[]>([]);
   const [clearCount, setClearCount] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(true);
-
-  const { messages, sendMessage, clearConversation, isLoading } = useWebhookChat(webhookUrl, authHeader);
+  const {
+    messages,
+    sendMessage,
+    clearConversation,
+    isLoading
+  } = useWebhookChat(webhookUrl, authHeader);
 
   // For textarea auto growth (up to 3 lines)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
   const handleSendMessage = () => {
     if (messageText.trim() || attachments.length > 0) {
       sendMessage(messageText, attachments);
@@ -44,7 +44,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       setClearCount(prev => prev + 1); // Signal uploader to clear
     }
   };
-
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -61,9 +60,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       textareaRef.current.style.height = Math.min(scrollH, maxHeight) + 'px';
     }
   }, [messageText]);
-
-  return (
-    <div className={`flex flex-col h-screen w-full shadow-lg ${isDark ? 'bg-gray-800 text-white' : 'bg-white'}`}>
+  return <div className={`flex flex-col h-screen w-full shadow-lg ${isDark ? 'bg-gray-800 text-white' : 'bg-white'}`}>
       {/* Header */}
       <div className="flex justify-between items-center p-4 border-b w-full">
         <div className="flex items-center gap-3">
@@ -74,16 +71,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <a href="https://github.com/lucien-alegria/hookchat" target="_blank" rel="noopener noreferrer" title="View on GitHub" className="rounded-full bg-gray-200 hover:bg-gray-300 p-2 transition-colors">
             <Github size={20} className="text-black" />
           </a>
-          <SettingsDialog
-            webhookUrl={webhookUrl}
-            setWebhookUrl={setWebhookUrl}
-            authHeader={authHeader}
-            setAuthHeader={setAuthHeader}
-            isDark={isDark}
-            setIsDark={setIsDark}
-            open={settingsOpen}
-            setOpen={setSettingsOpen}
-          />
+          <SettingsDialog webhookUrl={webhookUrl} setWebhookUrl={setWebhookUrl} authHeader={authHeader} setAuthHeader={setAuthHeader} isDark={isDark} setIsDark={setIsDark} open={settingsOpen} setOpen={setSettingsOpen} />
           <Button variant="ghost" size="icon" onClick={clearConversation} title="Clear Conversation">
             <RefreshCcw className="text-gray-600" />
           </Button>
@@ -96,61 +84,35 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       {/* Bottom section (input area) */}
       <div className={`p-4 border-t flex flex-col gap-2${attachments.length > 0 ? ' pb-3' : ''}`}>
         {/* Attachment list above input */}
-        {attachments.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mb-2">
-            {attachments.map((file, idx) => (
-              <div key={file.name + idx} className="flex items-center px-2 py-1 rounded bg-gray-100 text-xs dark:bg-gray-700">
+        {attachments.length > 0 && <div className="flex flex-wrap items-center gap-2 mb-2">
+            {attachments.map((file, idx) => <div key={file.name + idx} className="flex items-center px-2 py-1 rounded bg-gray-100 text-xs dark:bg-gray-700">
                 {file.name}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const updated = attachments.filter((_, i) => i !== idx);
-                    setAttachments(updated);
-                  }}
-                  className="ml-2 hover:text-red-500 transition-colors"
-                  tabIndex={-1}
-                >
+                <button type="button" onClick={() => {
+            const updated = attachments.filter((_, i) => i !== idx);
+            setAttachments(updated);
+          }} className="ml-2 hover:text-red-500 transition-colors" tabIndex={-1}>
                   ×
                 </button>
-              </div>
-            ))}
-          </div>
-        )}
+              </div>)}
+          </div>}
 
         <div className="flex items-center space-x-2 w-full">
           {/* Attachment icon button on the left */}
-          <AttachmentUploader
-            onAttachmentChange={setAttachments}
-            clearTrigger={clearCount}
-            iconOnly
-          />
+          <AttachmentUploader onAttachmentChange={setAttachments} clearTrigger={clearCount} iconOnly />
           {/* Now textarea for input */}
-          <textarea
-            ref={textareaRef}
-            value={messageText}
-            onChange={e => setMessageText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type your message..."
-            className={`flex-grow resize-none rounded-md border border-input bg-background px-3 py-2 text-base focus:outline-none
+          <textarea ref={textareaRef} value={messageText} onChange={e => setMessageText(e.target.value)} onKeyDown={handleKeyDown} placeholder="Type your message..." className={`flex-grow resize-none rounded-md border border-input bg-background px-3 py-2 text-base focus:outline-none
               ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}
               h-10 min-h-[40px] max-h-[120px] transition-none
               focus:border-black
-              `}
-            disabled={isLoading}
-            rows={1}
-            style={{ minHeight: 40, maxHeight: 120, lineHeight: '20px' }}
-          />
-          <Button
-            onClick={handleSendMessage}
-            disabled={isLoading || (!messageText.trim() && attachments.length === 0)}
-            variant="default"
-            size="icon"
-            className="w-10 h-10 min-w-[44px] min-h-[40px] max-h-[40px] max-w-[44px] rounded-full flex items-center justify-center p-0"
-          >
+              `} disabled={isLoading} rows={1} style={{
+          minHeight: 40,
+          maxHeight: 120,
+          lineHeight: '20px'
+        }} />
+          <Button onClick={handleSendMessage} disabled={isLoading || !messageText.trim() && attachments.length === 0} variant="default" size="icon" className="w-10 h-10 min-w-[40px] min-h-[40px] max-h-[40px] max-w-[44px] rounded-full flex items-center justify-center p-0">
             <Send size={20} />
           </Button>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
