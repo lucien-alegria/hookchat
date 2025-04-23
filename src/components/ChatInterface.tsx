@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { useWebhookChat } from '../hooks/useWebhookChat';
 import { MessageList } from './MessageList';
 import { AttachmentUploader } from './AttachmentUploader';
-import { Send, RefreshCcw, Github, Webhook } from 'lucide-react';
+import { Send, RotateCcw, Github, Webhook } from 'lucide-react';
 import { SettingsDialog } from './SettingsDialog';
 import { Separator } from '@/components/ui/separator';
 interface ChatInterfaceProps {
@@ -73,7 +73,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </a>
           <SettingsDialog webhookUrl={webhookUrl} setWebhookUrl={setWebhookUrl} authHeader={authHeader} setAuthHeader={setAuthHeader} isDark={isDark} setIsDark={setIsDark} open={settingsOpen} setOpen={setSettingsOpen} />
           <Button variant="ghost" size="icon" onClick={clearConversation} title="Clear Conversation">
-            <RefreshCcw className="text-gray-600" />
+            <RotateCcw className="text-gray-600" />
           </Button>
         </div>
       </div>
