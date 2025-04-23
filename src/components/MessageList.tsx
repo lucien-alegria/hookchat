@@ -20,10 +20,10 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, isDark }) =>
         >
           <div 
             className={`max-w-[70%] p-3 rounded-lg ${
-              message.sender === 'user' 
-                ? isDark 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-blue-500 text-white'
+              message.sender === 'user'
+                ? isDark
+                  ? 'bg-[#222] text-white' // Dark gray for user msg on dark
+                  : 'bg-[#333] text-white' // Dark gray for user msg on light
                 : isDark
                   ? 'bg-gray-700 text-white'
                   : 'bg-gray-200 text-black'
