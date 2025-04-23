@@ -1,12 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Paperclip, X } from 'lucide-react';
 
 interface AttachmentUploaderProps {
   onAttachmentChange: (files: File[]) => void;
+  clearTrigger?: number; // incrementing number for clearing
 }
 
-export const AttachmentUploader: React.FC<AttachmentUploaderProps> = ({ onAttachmentChange }) => {
+export const AttachmentUploader: React.FC<AttachmentUploaderProps> = ({ onAttachmentChange, clearTrigger }) => {
   const [attachments, setAttachments] = useState<File[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,6 +21,12 @@ export const AttachmentUploader: React.FC<AttachmentUploaderProps> = ({ onAttach
     setAttachments(updatedAttachments);
     onAttachmentChange(updatedAttachments);
   };
+
+  // If clearTrigger changes, empty attachments
+  useEffect(() => {
+    setAttachments([]);
+    onAttachmentChange([]);
+  }, [clearTrigger]);
 
   return (
     <div className="flex items-center space-x-2">
@@ -35,7 +42,7 @@ export const AttachmentUploader: React.FC<AttachmentUploaderProps> = ({ onAttach
       {attachments.length > 0 && (
         <div className="flex space-x-1">
           {attachments.map((file, index) => (
-            <div key={file.name} className="flex items-center bg-gray-100 px-2 py-1 rounded text-xs">
+            <div key={file.name + index} className="flex items-center bg-gray-100 px-2 py-1 rounded text-xs">
               {file.name}
               <button 
                 onClick={() => removeAttachment(index)} 
