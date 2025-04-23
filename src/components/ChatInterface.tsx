@@ -70,7 +70,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       <div className="p-4 border-t flex items-center space-x-2">
         <AttachmentUploader onAttachmentChange={setAttachments} clearTrigger={clearCount} />
         <Input value={messageText} onChange={e => setMessageText(e.target.value)} onKeyPress={handleKeyPress} placeholder="Type your message..." className={`flex-grow ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}`} disabled={isLoading} />
-        <Button onClick={handleSendMessage} disabled={isLoading || !messageText.trim() && attachments.length === 0} className="w-12 h-12 p-0 rounded-full flex items-center justify-center" variant="default" size="icon">
+        <Button onClick={handleSendMessage} disabled={isLoading || !messageText.trim() && attachments.length === 0} variant="default" size="icon" className="w-11 h-10 p-0 rounded-full flex items-center justify-center">
           <Send size={20} />
         </Button>
       </div>
