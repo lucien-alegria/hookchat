@@ -7,7 +7,6 @@ import { MessageList } from './MessageList';
 import { AttachmentUploader } from './AttachmentUploader';
 import { Send, RotateCcw, Github, Webhook } from 'lucide-react';
 import { SettingsDialog } from './SettingsDialog';
-import { Separator } from '@/components/ui/separator';
 
 interface ChatInterfaceProps {
   webhookUrl: string;
@@ -106,7 +105,100 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <div className="flex flex-col items-center justify-center px-4">
             <h1 className="text-3xl font-bold mb-8">Chat with your webhook!</h1>
             <div className="w-full max-w-2xl">
+              <div className="relative">
+                {/* Attachments above input in initial state */}
+                {attachments.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    {attachments.map((file, idx) => (
+                      <div key={file.name + idx} className="flex items-center px-2 py-1 rounded bg-gray-100 text-xs dark:bg-gray-700">
+                        {file.name}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = attachments.filter((_, i) => i !== idx);
+                            setAttachments(updated);
+                          }}
+                          className="ml-2 hover:text-red-500 transition-colors"
+                          tabIndex={-1}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="relative flex items-center">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                    <AttachmentUploader onAttachmentChange={setAttachments} clearTrigger={clearCount} iconOnly />
+                  </div>
+                  <textarea 
+                    ref={textareaRef} 
+                    value={messageText} 
+                    onChange={e => setMessageText(e.target.value)} 
+                    onKeyDown={handleKeyDown} 
+                    placeholder="Enter your prompt..." 
+                    className={`w-full rounded-full border border-input bg-background px-12 py-2 text-base focus:outline-none
+                      ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}
+                      h-12 min-h-[48px] transition-none
+                      focus:border-black
+                    `}
+                    disabled={isLoading} 
+                    rows={1}
+                    style={{
+                      resize: 'none',
+                      overflowY: 'auto',
+                    }}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                    <Button 
+                      onClick={handleSendMessage} 
+                      disabled={isLoading || (!messageText.trim() && attachments.length === 0)} 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600"
+                    >
+                      <Send size={18} />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <MessageList messages={messages} isDark={isDark} />
+        )}
+      </div>
+
+      {/* Bottom section (input area) - Only show if not in initial state */}
+      {!isInitialState && (
+        <div className={`p-4 flex flex-col items-center`}>
+          <div className="w-full max-w-2xl">
+            <div className="relative">
+              {/* Attachments above input in ongoing conversation */}
+              {attachments.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  {attachments.map((file, idx) => (
+                    <div key={file.name + idx} className="flex items-center px-2 py-1 rounded bg-gray-100 text-xs dark:bg-gray-700">
+                      {file.name}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = attachments.filter((_, i) => i !== idx);
+                          setAttachments(updated);
+                        }}
+                        className="ml-2 hover:text-red-500 transition-colors"
+                        tabIndex={-1}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="relative flex items-center">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                  <AttachmentUploader onAttachmentChange={setAttachments} clearTrigger={clearCount} iconOnly />
+                </div>
                 <textarea 
                   ref={textareaRef} 
                   value={messageText} 
@@ -125,83 +217,18 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     overflowY: 'auto',
                   }}
                 />
-                <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                  <AttachmentUploader onAttachmentChange={setAttachments} clearTrigger={clearCount} iconOnly />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                  <Button 
+                    onClick={handleSendMessage} 
+                    disabled={isLoading || (!messageText.trim() && attachments.length === 0)} 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600"
+                  >
+                    <Send size={18} />
+                  </Button>
                 </div>
-                <Button 
-                  onClick={handleSendMessage} 
-                  disabled={isLoading || (!messageText.trim() && attachments.length === 0)} 
-                  variant="ghost" 
-                  size="icon" 
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600"
-                >
-                  <Send size={18} />
-                </Button>
               </div>
-            </div>
-          </div>
-        ) : (
-          <MessageList messages={messages} isDark={isDark} />
-        )}
-      </div>
-
-      {/* Bottom section (input area) - Only show if not in initial state */}
-      {!isInitialState && (
-        <div className={`p-4 border-t flex flex-col gap-2 items-center ${attachments.length > 0 ? 'pb-3' : ''}`}>
-          {/* Attachment list above input */}
-          <div className="w-full max-w-2xl">
-            {attachments.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 mb-2">
-                {attachments.map((file, idx) => (
-                  <div key={file.name + idx} className="flex items-center px-2 py-1 rounded bg-gray-100 text-xs dark:bg-gray-700">
-                    {file.name}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updated = attachments.filter((_, i) => i !== idx);
-                        setAttachments(updated);
-                      }}
-                      className="ml-2 hover:text-red-500 transition-colors"
-                      tabIndex={-1}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="relative flex items-center">
-              <textarea 
-                ref={textareaRef} 
-                value={messageText} 
-                onChange={e => setMessageText(e.target.value)} 
-                onKeyDown={handleKeyDown} 
-                placeholder="Enter your prompt..." 
-                className={`w-full rounded-full border border-input bg-background px-12 py-2 text-base focus:outline-none
-                  ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}
-                  h-12 min-h-[48px] transition-none
-                  focus:border-black
-                `}
-                disabled={isLoading} 
-                rows={1}
-                style={{
-                  resize: 'none',
-                  overflowY: 'auto',
-                }}
-              />
-              <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                <AttachmentUploader onAttachmentChange={setAttachments} clearTrigger={clearCount} iconOnly />
-              </div>
-              <Button 
-                onClick={handleSendMessage} 
-                disabled={isLoading || (!messageText.trim() && attachments.length === 0)} 
-                variant="ghost" 
-                size="icon" 
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600"
-              >
-                <Send size={18} />
-              </Button>
             </div>
           </div>
         </div>

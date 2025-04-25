@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Message } from '../hooks/useWebhookChat';
 import { format } from 'date-fns';
 
@@ -9,6 +9,15 @@ interface MessageListProps {
 }
 
 export const MessageList: React.FC<MessageListProps> = ({ messages, isDark }) => {
+  const endOfMessagesRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-scroll to the most recent message
+  useEffect(() => {
+    if (endOfMessagesRef.current) {
+      endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
   return (
     <div className="flex-grow overflow-y-auto p-4 space-y-4 w-full flex flex-col items-center">
       <div className="w-full max-w-2xl">
@@ -44,6 +53,8 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, isDark }) =>
             </div>
           </div>
         ))}
+        {/* This div serves as a target for scrolling to the end of messages */}
+        <div ref={endOfMessagesRef} />
       </div>
     </div>
   );

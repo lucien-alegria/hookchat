@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
-import { Paperclip, X } from 'lucide-react';
+import { Paperclip } from 'lucide-react';
 
 interface AttachmentUploaderProps {
   onAttachmentChange: (files: File[]) => void;
@@ -26,17 +26,19 @@ export const AttachmentUploader: React.FC<AttachmentUploaderProps> = ({ onAttach
   if (iconOnly) {
     // Only render the icon button (used in chat line)
     return (
-      <label className="cursor-pointer hover:bg-gray-100 p-2 rounded-full transition-colors flex-shrink-0 flex items-center" tabIndex={0}>
-        <Paperclip size={20} className="text-gray-600" />
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          className="hidden"
-          onChange={handleFileChange}
-          tabIndex={-1}
-        />
-      </label>
+      <div className="flex items-center justify-center">
+        <label className="cursor-pointer p-2 rounded-full transition-colors flex items-center justify-center" tabIndex={0}>
+          <Paperclip size={20} className="text-gray-600" />
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            className="hidden"
+            onChange={handleFileChange}
+            tabIndex={-1}
+          />
+        </label>
+      </div>
     );
   }
 
