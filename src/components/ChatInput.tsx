@@ -83,7 +83,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           overflowY: 'auto'
         }} />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center">
-            <Button onClick={handleSendMessage} disabled={isLoading || !messageText.trim() && attachments.length === 0} variant="ghost" size="icon" className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600">
+            <Button onClick={handleSendMessage} disabled={isLoading || !messageText.trim() && attachments.length === 0} variant="ghost" size="icon" className="h-10 w-10 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600">
               <Send size={18} />
             </Button>
           </div>
