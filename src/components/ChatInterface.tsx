@@ -66,7 +66,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Bottom section (input area) - Only show if not in initial state */}
       {!isInitialState && (
-        <div className={`p-4 flex flex-col items-center`}>
+        <div className="p-4 flex flex-col items-center">
           <ChatInput 
             onSendMessage={handleSendMessage}
             isLoading={isLoading}

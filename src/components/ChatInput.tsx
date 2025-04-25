@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useLayoutEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
 import { AttachmentUploader } from './AttachmentUploader';
@@ -28,6 +28,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       setMessageText('');
       setAttachments([]);
       setClearCount(prev => prev + 1); // Signal uploader to clear
+      
+      // Focus back on textarea after sending
+      if (textareaRef.current) {
+        setTimeout(() => {
+          textareaRef.current?.focus();
+        }, 0);
+      }
     }
   };
   
@@ -47,15 +54,22 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       textareaRef.current.style.height = Math.min(scrollH, maxHeight) + 'px';
     }
   }, [messageText]);
+  
+  // Auto-focus on mount
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, []);
 
   return (
     <div className="w-full max-w-2xl">
-      <div className="relative">
-        {/* Attachments above input */}
+      <div className={`relative rounded-full bg-white dark:bg-gray-700 ${attachments.length > 0 ? 'p-3' : ''}`}>
+        {/* Attachments inside the input container */}
         {attachments.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-2">
             {attachments.map((file, idx) => (
-              <div key={file.name + idx} className="flex items-center px-2 py-1 rounded bg-gray-100 text-xs dark:bg-gray-700">
+              <div key={file.name + idx} className="flex items-center px-2 py-1 rounded bg-gray-100 text-xs dark:bg-gray-600">
                 {file.name}
                 <button
                   type="button"
@@ -82,8 +96,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             onChange={e => setMessageText(e.target.value)} 
             onKeyDown={handleKeyDown} 
             placeholder="Enter your prompt..." 
-            className={`w-full rounded-full border border-input bg-background px-12 py-2 text-base focus:outline-none
-              ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}
+            className={`w-full rounded-full border border-input bg-transparent px-12 py-2 text-base focus:outline-none
+              ${isDark ? 'text-white border-gray-600' : ''}
               h-12 min-h-[48px] transition-none
               focus:border-black
             `}

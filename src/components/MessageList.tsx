@@ -29,12 +29,12 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, isDark }) =>
             } mb-4`}
           >
             <div 
-              className={`max-w-[70%] p-3 rounded-lg ${
+              className={`max-w-[70%] p-3 ${
                 message.sender === 'user'
-                  ? 'bg-[#222] text-white' // User msg: always very dark gray
+                  ? 'bg-[#222] text-white rounded-tl-lg rounded-tr-lg rounded-bl-lg rounded-br-none' // Square bottom-right for user
                   : isDark
-                    ? 'bg-gray-700 text-white'
-                    : 'bg-gray-200 text-black'
+                    ? 'bg-gray-700 text-white rounded-tl-lg rounded-tr-lg rounded-bl-none rounded-br-lg' // Square bottom-left for AI
+                    : 'bg-gray-200 text-black rounded-tl-lg rounded-tr-lg rounded-bl-none rounded-br-lg' // Square bottom-left for AI
               }`}
             >
               <p style={{ whiteSpace: 'pre-line' }}>{message.content}</p>
