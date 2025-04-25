@@ -18,9 +18,7 @@ Payload sent to the webhook:
                 "attachmentMime": "application/pdf",
                 "attachmentData": "12345"
             }
-        ],
-        "authorizationKey": "Authorization",
-        "authorizationValue": "Bearer 12345"
+        ]
     }
 ```
 
