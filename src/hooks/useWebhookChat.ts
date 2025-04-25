@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
@@ -9,7 +10,7 @@ export interface Message {
   timestamp: number;
 }
 
-export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, string>) => {
+export const useWebhookChat = (webhookUrl: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
@@ -62,36 +63,21 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
         }
       }
       
-      // Extract authentication header information
-      let authorizationKey = '';
-      let authorizationValue = '';
-      
-      if (authHeader) {
-        const authEntry = Object.entries(authHeader)[0]; // Get the first auth header
-        if (authEntry) {
-          [authorizationKey, authorizationValue] = authEntry;
-        }
-      }
-      
-      // Create the payload with the exact structure specified, including auth header info
+      // Create the payload without auth header info
       const bundle = {
         message: content,
         threadId: currentThreadId,
         timestamp: timestamp,
         attachmentCount: attachmentsArray.length,
-        attachments: attachmentsArray,
-        authorizationKey,
-        authorizationValue
+        attachments: attachmentsArray
       };
       
-      // Webhook structure that works with Make.com
       const finalPayload = [bundle];
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          ...authHeader,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(finalPayload)
       });
@@ -102,11 +88,9 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
 
       const responseData = await response.json();
       
-      // Update threadId if one is returned
       if (responseData.threadId) {
         setThreadId(responseData.threadId);
       } else {
-        // If no threadId in response, store the one we created
         setThreadId(currentThreadId);
       }
 
@@ -125,7 +109,7 @@ export const useWebhookChat = (webhookUrl: string, authHeader?: Record<string, s
     } finally {
       setIsLoading(false);
     }
-  }, [webhookUrl, authHeader, threadId]);
+  }, [webhookUrl, threadId]);
 
   const clearConversation = () => {
     setMessages([]);

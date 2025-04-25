@@ -7,19 +7,17 @@ import { AttachmentUploader } from './AttachmentUploader';
 import { Send, RotateCcw, Github, Webhook } from 'lucide-react';
 import { SettingsDialog } from './SettingsDialog';
 import { Separator } from '@/components/ui/separator';
+
 interface ChatInterfaceProps {
   webhookUrl: string;
   setWebhookUrl: (url: string) => void;
-  authHeader: Record<string, string>;
-  setAuthHeader: (header: Record<string, string>) => void;
   isDark: boolean;
   setIsDark: (isDark: boolean) => void;
 }
+
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   webhookUrl,
   setWebhookUrl,
-  authHeader,
-  setAuthHeader,
   isDark,
   setIsDark
 }) => {
@@ -32,7 +30,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     sendMessage,
     clearConversation,
     isLoading
-  } = useWebhookChat(webhookUrl, authHeader);
+  } = useWebhookChat(webhookUrl);
 
   // For textarea auto growth (up to 3 lines)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -60,6 +58,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       textareaRef.current.style.height = Math.min(scrollH, maxHeight) + 'px';
     }
   }, [messageText]);
+
   return <div className={`flex flex-col h-screen w-full shadow-lg ${isDark ? 'bg-gray-800 text-white' : 'bg-white'}`}>
       {/* Header */}
       <div className="flex justify-between items-center p-4 border-b w-full">
@@ -68,11 +67,29 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <h2 className="text-xl font-semibold">hookchat</h2>
         </div>
         <div className="flex items-center space-x-2">
-          <a href="https://github.com/lucien-alegria/hookchat" target="_blank" rel="noopener noreferrer" title="View on GitHub" className="rounded-full bg-gray-200 hover:bg-gray-300 p-2 transition-colors">
+          <a 
+            href="https://github.com/lucien-alegria/hookchat" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            title="View on GitHub" 
+            className="rounded-full bg-gray-200 hover:bg-gray-300 p-2 transition-colors"
+          >
             <Github size={20} className="text-black" />
           </a>
-          <SettingsDialog webhookUrl={webhookUrl} setWebhookUrl={setWebhookUrl} authHeader={authHeader} setAuthHeader={setAuthHeader} isDark={isDark} setIsDark={setIsDark} open={settingsOpen} setOpen={setSettingsOpen} />
-          <Button variant="ghost" size="icon" onClick={clearConversation} title="Clear Conversation">
+          <SettingsDialog 
+            webhookUrl={webhookUrl}
+            setWebhookUrl={setWebhookUrl}
+            isDark={isDark}
+            setIsDark={setIsDark}
+            open={settingsOpen}
+            setOpen={setSettingsOpen}
+          />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={clearConversation} 
+            title="Clear Conversation"
+          >
             <RotateCcw className="text-gray-600" />
           </Button>
         </div>
