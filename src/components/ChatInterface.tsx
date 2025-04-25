@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useLayoutEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     isLoading
   } = useWebhookChat(webhookUrl);
 
+  // Check if this is the initial state (no messages)
+  const isInitialState = messages.length === 0;
+
   // For textarea auto growth (up to 3 lines)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const handleSendMessage = () => {
@@ -59,7 +63,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   }, [messageText]);
 
-  return <div className={`flex flex-col h-screen w-full shadow-lg ${isDark ? 'bg-gray-800 text-white' : 'bg-white'}`}>
+  return (
+    <div className={`flex flex-col h-screen w-full shadow-lg ${isDark ? 'bg-gray-800 text-white' : 'bg-white'}`}>
       {/* Header */}
       <div className="flex justify-between items-center p-4 border-b w-full">
         <div className="flex items-center gap-3">
@@ -96,40 +101,111 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
 
       {/* Message list */}
-      <MessageList messages={messages} isDark={isDark} />
-
-      {/* Bottom section (input area) */}
-      <div className={`p-4 border-t flex flex-col gap-2${attachments.length > 0 ? ' pb-3' : ''}`}>
-        {/* Attachment list above input */}
-        {attachments.length > 0 && <div className="flex flex-wrap items-center gap-2 mb-2">
-            {attachments.map((file, idx) => <div key={file.name + idx} className="flex items-center px-2 py-1 rounded bg-gray-100 text-xs dark:bg-gray-700">
-                {file.name}
-                <button type="button" onClick={() => {
-            const updated = attachments.filter((_, i) => i !== idx);
-            setAttachments(updated);
-          }} className="ml-2 hover:text-red-500 transition-colors" tabIndex={-1}>
-                  ×
-                </button>
-              </div>)}
-          </div>}
-
-        <div className="flex items-center space-x-2 w-full">
-          {/* Attachment icon button on the left */}
-          <AttachmentUploader onAttachmentChange={setAttachments} clearTrigger={clearCount} iconOnly />
-          {/* Now textarea for input */}
-          <textarea ref={textareaRef} value={messageText} onChange={e => setMessageText(e.target.value)} onKeyDown={handleKeyDown} placeholder="Type your message..." className={`flex-grow resize-none rounded-md border border-input bg-background px-3 py-2 text-base focus:outline-none
-              ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}
-              h-10 min-h-[40px] max-h-[120px] transition-none
-              focus:border-black
-              `} disabled={isLoading} rows={1} style={{
-          minHeight: 40,
-          maxHeight: 120,
-          lineHeight: '20px'
-        }} />
-          <Button onClick={handleSendMessage} disabled={isLoading || !messageText.trim() && attachments.length === 0} variant="default" size="icon" className="w-10 h-10 min-w-[40px] min-h-[40px] max-h-[40px] max-w-[44px] rounded-full flex items-center justify-center p-0">
-            <Send size={20} />
-          </Button>
-        </div>
+      <div className={`flex-grow overflow-y-auto flex flex-col ${isInitialState ? 'justify-center' : 'justify-start'}`}>
+        {isInitialState ? (
+          <div className="flex flex-col items-center justify-center px-4">
+            <h1 className="text-3xl font-bold mb-8">Chat with your webhook!</h1>
+            <div className="w-full max-w-2xl">
+              <div className="relative flex items-center">
+                <textarea 
+                  ref={textareaRef} 
+                  value={messageText} 
+                  onChange={e => setMessageText(e.target.value)} 
+                  onKeyDown={handleKeyDown} 
+                  placeholder="Enter your prompt..." 
+                  className={`w-full rounded-full border border-input bg-background px-12 py-2 text-base focus:outline-none
+                    ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}
+                    h-12 min-h-[48px] transition-none
+                    focus:border-black
+                  `}
+                  disabled={isLoading} 
+                  rows={1}
+                  style={{
+                    resize: 'none',
+                    overflowY: 'auto',
+                  }}
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                  <AttachmentUploader onAttachmentChange={setAttachments} clearTrigger={clearCount} iconOnly />
+                </div>
+                <Button 
+                  onClick={handleSendMessage} 
+                  disabled={isLoading || (!messageText.trim() && attachments.length === 0)} 
+                  variant="ghost" 
+                  size="icon" 
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600"
+                >
+                  <Send size={18} />
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <MessageList messages={messages} isDark={isDark} />
+        )}
       </div>
-    </div>;
+
+      {/* Bottom section (input area) - Only show if not in initial state */}
+      {!isInitialState && (
+        <div className={`p-4 border-t flex flex-col gap-2 items-center ${attachments.length > 0 ? 'pb-3' : ''}`}>
+          {/* Attachment list above input */}
+          <div className="w-full max-w-2xl">
+            {attachments.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                {attachments.map((file, idx) => (
+                  <div key={file.name + idx} className="flex items-center px-2 py-1 rounded bg-gray-100 text-xs dark:bg-gray-700">
+                    {file.name}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = attachments.filter((_, i) => i !== idx);
+                        setAttachments(updated);
+                      }}
+                      className="ml-2 hover:text-red-500 transition-colors"
+                      tabIndex={-1}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="relative flex items-center">
+              <textarea 
+                ref={textareaRef} 
+                value={messageText} 
+                onChange={e => setMessageText(e.target.value)} 
+                onKeyDown={handleKeyDown} 
+                placeholder="Enter your prompt..." 
+                className={`w-full rounded-full border border-input bg-background px-12 py-2 text-base focus:outline-none
+                  ${isDark ? 'bg-gray-700 text-white border-gray-600' : ''}
+                  h-12 min-h-[48px] transition-none
+                  focus:border-black
+                `}
+                disabled={isLoading} 
+                rows={1}
+                style={{
+                  resize: 'none',
+                  overflowY: 'auto',
+                }}
+              />
+              <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                <AttachmentUploader onAttachmentChange={setAttachments} clearTrigger={clearCount} iconOnly />
+              </div>
+              <Button 
+                onClick={handleSendMessage} 
+                disabled={isLoading || (!messageText.trim() && attachments.length === 0)} 
+                variant="ghost" 
+                size="icon" 
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600"
+              >
+                <Send size={18} />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
