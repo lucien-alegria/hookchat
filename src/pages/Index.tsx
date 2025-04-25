@@ -5,7 +5,6 @@ import { ChatInterface } from '@/components/ChatInterface';
 // Always start on chat, with settings dialog open.
 const Index = () => {
   const [webhookUrl, setWebhookUrl] = useState('');
-  const [authHeader, setAuthHeader] = useState<Record<string, string>>({});
   const [isDark, setIsDark] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
     return savedMode ? JSON.parse(savedMode) : false;
@@ -26,8 +25,6 @@ const Index = () => {
     <ChatInterface
       webhookUrl={webhookUrl}
       setWebhookUrl={setWebhookUrl}
-      authHeader={authHeader}
-      setAuthHeader={setAuthHeader}
       isDark={isDark}
       setIsDark={setIsDark}
     />
