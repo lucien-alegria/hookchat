@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useWebhookChat } from '../hooks/useWebhookChat';
 import { MessageList } from './MessageList';
 import { ChatHeader } from './ChatHeader';
@@ -36,8 +36,24 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   // Focus handler that can be called after settings close
   const focusInput = () => {
-    chatInputRef.current?.focus();
+    if (chatInputRef.current) {
+      chatInputRef.current.focus();
+    }
   };
+
+  // Auto-focus when settings close
+  useEffect(() => {
+    if (!settingsOpen) {
+      focusInput();
+    }
+  }, [settingsOpen]);
+  
+  // Auto-focus when the component mounts (if not initial state)
+  useEffect(() => {
+    if (!isInitialState && !settingsOpen) {
+      focusInput();
+    }
+  }, [isInitialState]);
 
   return (
     <div className={`flex flex-col h-screen w-full shadow-lg ${isDark ? 'bg-gray-800 text-white' : 'bg-white'}`}>
@@ -51,7 +67,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           setSettingsOpen(open);
           if (!open) {
             // Focus input when settings dialog closes
-            setTimeout(focusInput, 0);
+            setTimeout(focusInput, 100);
           }
         }}
         clearConversation={clearConversation}

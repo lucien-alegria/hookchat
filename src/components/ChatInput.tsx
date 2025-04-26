@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useLayoutEffect, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
@@ -23,11 +24,15 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({
   const [clearCount, setClearCount] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
+  // Fix: Ensure we safely handle focus with proper null checks
   useImperativeHandle(ref, () => ({
     focus: () => {
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-      }
+      // Add a small delay to ensure the DOM is ready
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+        }
+      }, 10);
     }
   }));
 
@@ -38,12 +43,12 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({
       setAttachments([]);
       setClearCount(prev => prev + 1);
 
-      // Focus back on textarea after sending
-      if (textareaRef.current) {
-        setTimeout(() => {
+      // Fix: Add delay before focusing to ensure DOM is ready
+      setTimeout(() => {
+        if (textareaRef.current) {
           textareaRef.current.focus();
-        }, 0);
-      }
+        }
+      }, 10);
     }
   };
 

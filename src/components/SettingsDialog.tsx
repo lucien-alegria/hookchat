@@ -36,6 +36,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
 
   const onSave = (e: React.FormEvent) => {
     e.preventDefault();
+    // Close the dialog which will trigger the auto-focus in ChatInterface
     handleOpenChange(false);
   };
 
