@@ -1,38 +1,52 @@
-import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
 import { AttachmentUploader } from './AttachmentUploader';
+
+export interface ChatInputRef {
+  focus: () => void;
+}
+
 interface ChatInputProps {
   onSendMessage: (messageText: string, attachments: File[]) => void;
   isLoading: boolean;
   isDark: boolean;
 }
-export const ChatInput: React.FC<ChatInputProps> = ({
+
+export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({
   onSendMessage,
   isLoading,
   isDark
-}) => {
+}, ref) => {
   const [messageText, setMessageText] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
   const [clearCount, setClearCount] = useState(0);
-
-  // For textarea auto growth (up to 3 lines)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
+    }
+  }));
+
   const handleSendMessage = () => {
     if (messageText.trim() || attachments.length > 0) {
       onSendMessage(messageText, attachments);
       setMessageText('');
       setAttachments([]);
-      setClearCount(prev => prev + 1); // Signal uploader to clear
+      setClearCount(prev => prev + 1);
 
       // Focus back on textarea after sending
       if (textareaRef.current) {
         setTimeout(() => {
-          textareaRef.current?.focus();
+          textareaRef.current.focus();
         }, 0);
       }
     }
   };
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -40,7 +54,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
   };
 
-  // Auto-grow textarea up to 3 rows
   useLayoutEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = '40px';
@@ -50,15 +63,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
   }, [messageText]);
 
-  // Auto-focus on mount
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, []);
   return <div className="w-full max-w-2xl">
       <div className={`relative rounded-full bg-white dark:bg-gray-700 ${attachments.length > 0 ? 'p-3' : ''}`}>
-        {/* Attachments inside the input container */}
         {attachments.length > 0 && <div className="flex flex-wrap items-center gap-2 mb-2">
             {attachments.map((file, idx) => <div key={file.name + idx} className="flex items-center px-2 py-1 rounded bg-gray-100 text-xs dark:bg-gray-600">
                 {file.name}
@@ -90,4 +96,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         </div>
       </div>
     </div>;
-};
+});
+
+ChatInput.displayName = 'ChatInput';

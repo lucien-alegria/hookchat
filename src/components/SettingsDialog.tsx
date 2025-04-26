@@ -28,12 +28,12 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
   const controlledOpen = typeof open === 'boolean';
   const [localOpen, setLocalOpen] = React.useState(false);
   const actualOpen = controlledOpen ? open : localOpen;
+  
   const handleOpenChange = (o: boolean) => {
     if (setOpen) setOpen(o);
     else setLocalOpen(o);
   };
 
-  // Save: just closes the dialog (all fields update live)
   const onSave = (e: React.FormEvent) => {
     e.preventDefault();
     handleOpenChange(false);
